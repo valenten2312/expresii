@@ -1,0 +1,64 @@
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+ifstream fin ("expresie.in");
+ofstream fout ("expresie.out");
+const int NMAX = 1e5;
+const int ElementeMax = 1e4;
+int j;
+struct extras {
+    ll numar;
+    char semn = '0';
+}extras[ElementeMax + 2];
+// folosesc pozitia 0 ca numar total de elemente extrase
+// se accepta numere pana in de la -2^63 pana la 2^63 - 1 (o sa puste daca ii dai 2^63 - 1 + 2^63 - 1)
+
+struct arbore {
+    ll numar;
+    char semn = '0';
+    arbore * st, * dr;
+}*rad = NULL;
+
+char s[NMAX + 10];
+int sz;
+int main() {
+    fin.getline(s, NMAX + 5);
+    sz = strlen(s);
+    for (int i = 0; i < sz; i++) {
+        if (isdigit(s[i])) { //daca e cifra, inseamna ca urmeaza un numar
+            extras[0].numar++;
+            for (j = i; isdigit(s[j]); j++) {
+                extras[extras[0].numar].numar *= 10;
+                extras[extras[0].numar].numar += (s[j] - '0');
+            }
+            i = j - 1;
+        }
+        else { //altfel inseamna ca este un semn sau o paranteza
+            if (s[i] == '-') { //daca e minus
+                if (i == 0 || s[i - 1] == '(' || s[i - 1] == ')') { // si e la inceputul expresiei/inainte de el a fost o paranteza,
+                    extras[0].numar++;                              // va ramane la numar
+                    for (j = i + 1; isdigit(s[j]); j++) {
+                        extras[extras[0].numar].numar *= 10;
+                        extras[extras[0].numar].numar += (s[j] - '0');
+                    }
+                    extras[extras[0].numar].numar *= (-1);
+                    i = j - 1;
+                }
+                else { // altfel este pus ca semn
+                    extras[0].numar++;
+                    extras[extras[0].numar].semn = '-';
+                }
+            }
+            else { // altfel este pus ca semn/paranteza
+                extras[0].numar++;
+                extras[extras[0].numar].semn = s[i];
+            }
+        }
+    }
+    
+    for (int i = 1; i <= extras[0].numar; i++) {
+        if (extras[i].semn == '0') fout << extras[i].numar << ' ';
+        else fout << extras[i].semn << ' ';
+    }
+    return 0;
+}
